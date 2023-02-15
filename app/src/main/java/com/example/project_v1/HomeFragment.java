@@ -42,18 +42,6 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
 
-        long epochTime = System.currentTimeMillis(); // Convert milliseconds to seconds
-        Log.d("EpochTime", String.valueOf(epochTime));
-
-        Date date = new Date(epochTime); // Convert epoch time to Date object
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy"); // Create date formatter
-        String dateString = sdf.format(date); // Format date as string
-        Log.d("Date", dateString); // Output: 07/02/2022
-
-        CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(
-                epochTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
-        Log.d("RelativeTime", relativeTime.toString());
-
         // initializing all our variables.
         contact1 = view.findViewById(R.id.contact1id);
         contact2 = view.findViewById(R.id.contact2id);
