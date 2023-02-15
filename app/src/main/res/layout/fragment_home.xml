@@ -12,7 +12,7 @@
         android:layout_width="300dp"
         android:layout_height="45dp"
         android:layout_margin="10dp"
-        android:hint="Enter Contact 1"
+        android:hint="Enter Call Contact"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,7 +34,7 @@
         android:layout_height="45dp"
         android:layout_margin="10dp"
         android:layout_marginTop="232dp"
-        android:hint="Enter Contact 2"
+        android:hint="Enter Message Contact 1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/contact1id"/>
 
@@ -44,7 +44,7 @@
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/call_button"
+        android:src="@drawable/message_button"
         android:background="@color/emerald_green"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/call1id" />
@@ -55,7 +55,7 @@
         android:layout_width="300dp"
         android:layout_height="45dp"
         android:layout_margin="10dp"
-        android:hint="Enter Emergency Services contact"
+        android:hint="Enter Message Contact 2"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/contact2id"/>
 
@@ -65,7 +65,7 @@
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/call_button"
+        android:src="@drawable/message_button"
         android:background="@color/emerald_green"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/call2id" />

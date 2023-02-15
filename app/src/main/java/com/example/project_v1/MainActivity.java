@@ -1,42 +1,37 @@
 package com.example.project_v1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.example.project_v1.databinding.ActivityMainBinding;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
-
 public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+    private ActivityMainBinding binding;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private static final int CHECK_PERMISSION_DELAY_MS = 5000;  // 5 seconds
 
-    boolean fallDetected = false;
-    private boolean freeFall = false;
 
-    private SensorManager sensorManager;
-    private Sensor accelerometerSensor;
-    private Thread thread;
 
 
     @Override
@@ -44,161 +39,95 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        relpaceFragment(new HomeFragment());
 
+
+
+
+        Intent intent = getIntent();
+        int frag = intent.getIntExtra("frag", 0);
+        Log.i("Frag ID", String.valueOf(frag));
+
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+
+        if (frag == 1 && !(currentFragment instanceof WarningFragment)) {
+            replaceFragment(new WarningFragment());
+        } else if (!(currentFragment instanceof HomeFragment)) {
+            replaceFragment(new HomeFragment());
+        }
+        setupBottomNavigationView();
+        checkAndRequestPermissions();
+    }
+
+    private void checkAndRequestPermissions() {
+        if (!allPermissionsGranted()) {
+            // If Call permission not granted
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 100);
+            }
+
+            // If SMS permission not granted
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 101);
+            }
+
+            // If overlay permission not granted
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+
+            // If accessibility service not enabled
+            String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
+            if (!isAccessibilityServiceEnabled(this, serviceString)) {
+                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                startActivity(intent);
+            }
+
+            handler.postDelayed(this::checkAndRequestPermissions, CHECK_PERMISSION_DELAY_MS);
+        }
+    }
+
+    private boolean allPermissionsGranted() {
+        boolean callPermissionGranted = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
+        boolean smsPermissionGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
+        boolean overlayPermissionGranted = Settings.canDrawOverlays(this);
+        String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
+        boolean accessibilityEnabled = isAccessibilityServiceEnabled(this, serviceString);
+
+        return callPermissionGranted && smsPermissionGranted && overlayPermissionGranted && accessibilityEnabled;
+    }
+
+// ... Other code, including your isAccessibilityServiceEnabled() method ...
+
+
+    private void setupBottomNavigationView() {
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
-
             switch (item.getItemId()) {
                 case R.id.home_button:
-                    relpaceFragment(new HomeFragment());
+                    replaceFragment(new HomeFragment());
                     break;
                 case R.id.info_button:
-                    relpaceFragment(new InfoFragment());
+                    replaceFragment(new InfoFragment());
                     break;
             }
-
             return true;
         });
-
-        File file = new File(MainActivity.this.getFilesDir(), "text");
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        try {
-            File gpxfile = new File(file, "sample");
-            FileWriter writer = new FileWriter(gpxfile);
-            String cont1 = "123";
-            String cont2 = "456";
-            String cont3 = "789";
-
-            writer.write(cont1 + "\n" + cont2 + "\n" + cont3);
-            writer.flush();
-            writer.close();
-            String output = readFile();
-            //Toast.makeText(MainActivity.this, output, Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-        }
-
-
-        sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
-        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(accelListener, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
-
-
-
     }
 
-    private void feedMultiple() {
-        if (thread != null){
-            thread.interrupt();
-        }
-
-        thread = new Thread(() -> {
-            int x = 0;
-            while (true) {
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (freeFall){
-                    x+=1;
-                    if (x>=50){
-                        freeFall = false;
-                        x = 0;
-                    }
-                }
-            }
-        });
-
-        thread.start();
-
+    public boolean isAccessibilityServiceEnabled(Context context, String service) {
+        String enabledServices = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        return enabledServices != null && enabledServices.contains(service);
     }
 
 
-
-    private final SensorEventListener accelListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            double x = ((double)event.values[0])*1000.0;
-            x = (((int)x)/1000.0);
-            double y = ((double)event.values[1])*1000.0;
-            y = (((int)y)/1000.0);
-            double z = ((double)event.values[2])*1000.0;
-            z = (((int)z)/1000.0);
-            //Log.i("accelorometer values 1 ", "X : " + x + " m/s" + "Y : " + y + " m/s" + "Z : " + z + " m/s");
-            double rootSquare;
-            rootSquare = (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)))/9.81;
-            //Log.i("rootSquare", Double.toString(rootSquare));
-
-            if (rootSquare < 0.1) { //person free falling
-                //System.out.println("in freefall");
-                freeFall = true;
-            }
-            if (freeFall && rootSquare > 2.82 && !fallDetected) { //person hit the ground
-                System.out.println("hit the ground");
-                freeFall = false;
-                fallDetected = true;
-            }
-            if (fallDetected) {
-                fallDetected = false;
-                //Log.i("fall dectected", "done");
-                relpaceFragment(new WarningFragment());
-
-            }
-
-        }
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
-
-
-
-    private void relpaceFragment(Fragment fragment) {
+    private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        for (Fragment existingFragment : fragmentManager.getFragments()) {
+            fragmentTransaction.remove(existingFragment);
+        }
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
-
-    private String readFile() {
-        File fileEvents = new File(MainActivity.this.getFilesDir() + "/text/sample");
-        String text = null;
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(fileEvents));
-            text = String.valueOf(br.read());
-            //System.out.println(br.read());
-            int i;
-            while ((i = br.read()) != -1) {
-                //System.out.print((char)i);
-            }
-            StringBuilder content = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                content.append(line);
-                content.append(System.lineSeparator());
-            }
-            System.out.println("content: " + content);
-
-
-            br.close();
-        } catch (IOException e) {
-        }
-        return text;
-    }
-
-    public String readAllLines(BufferedReader reader) throws IOException {
-        StringBuilder content = new StringBuilder();
-        String line;
-
-        while ((line = reader.readLine()) != null) {
-            content.append(line);
-            content.append(System.lineSeparator());
-        }
-
-        return content.toString();
-    }
-
 
 }

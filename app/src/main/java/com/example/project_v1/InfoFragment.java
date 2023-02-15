@@ -14,6 +14,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.view.View;
 import android.widget.TextView;
+import android.util.Log;
+
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -29,25 +31,10 @@ public class InfoFragment extends Fragment {
 
 
     private SensorManager sensorManager;
-    private Sensor gyroscopeSensor;
     private Sensor accelerometerSensor;
-    private TextView gyrotextX;
-    private TextView gyrotextY;
-    private TextView gyrotextZ;
-    private TextView nogyro;
-    private TextView accelTextX;
-    private TextView accelTextY;
-    private TextView accelTextZ;
-    private TextView noaccel;
-    private TextView smalldata;
-    private TextView bigdata;
-    private TextView freefall;
-    private TextView falldetected;
-    private TextView rootview;
+    private TextView accelTextX, accelTextY, accelTextZ, noaccel, smalldata, bigdata, freefall, falldetected, rootview, timediffview;
 
-    boolean fallDetected = false;
-    private boolean freeFall = false;
-    private boolean TFplot = true;
+    private boolean fallDetected = false, freeFall = false, TFplot = true;
 
 
     private LineChart chart;
@@ -55,19 +42,14 @@ public class InfoFragment extends Fragment {
     private Boolean plotData = true;
 
     private String data1 = "";
-    private double bigdata1 = 0;
-    private double smalldata1 = 1000;
+    private double min = 1000, max = -1;
+    private int timediff, minTime = 0, maxTime = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
-        gyrotextX = view.findViewById(R.id.gyrotextX);
-        gyrotextY =  view.findViewById(R.id.gyrotextY);
-        gyrotextZ =  view.findViewById(R.id.gyrotextZ);
-        nogyro =  view.findViewById(R.id.noGyroscope);
-
         accelTextX = view.findViewById(R.id.acc_textX);
         accelTextY =  view.findViewById(R.id.acc_textY);
         accelTextZ =  view.findViewById(R.id.acc_textZ);
@@ -80,6 +62,7 @@ public class InfoFragment extends Fragment {
         freefall = view.findViewById(R.id.freefall);
         falldetected =  view.findViewById(R.id.falldetected);
         rootview =  view.findViewById(R.id.root);
+        timediffview =  view.findViewById(R.id.timediffview);
 
         Button plot =  view.findViewById(R.id.plot);
         Button reset =  view.findViewById(R.id.reset);
@@ -149,7 +132,6 @@ public class InfoFragment extends Fragment {
 
 
         sensorManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
-        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         plot.setOnClickListener(v -> plot());
@@ -180,7 +162,15 @@ public class InfoFragment extends Fragment {
                     if (x>=50){
                         freeFall = false;
                         x = 0;
-                        freefall.setText("FF");
+                        try {
+                            requireActivity().runOnUiThread(() -> {
+                                try {
+                                    freefall.setText("FF");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } catch (Exception e) {}
                     }
                 }
             }
@@ -204,7 +194,6 @@ public class InfoFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        sensorManager.registerListener(gyroListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(accelListener, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
 
         if (accelerometerSensor == null) {
@@ -215,36 +204,24 @@ public class InfoFragment extends Fragment {
 
         }
 
-        if (gyroscopeSensor == null) {
-            nogyro.setVisibility(View.VISIBLE);
-            gyrotextX.setVisibility(View.INVISIBLE);
-            gyrotextY.setVisibility(View.INVISIBLE);
-            gyrotextX.setVisibility(View.INVISIBLE);
-        }
-
     }
 
 
-    private void addEntry( double accel) {
-
+    private int addEntry( double accel) {
         LineData data = chart.getData();
-
         if (data != null) {
-
-
             ILineDataSet set = data.getDataSetByIndex(0);
-
-
             if (set == null) {
                 set = createSet();
                 data.addDataSet(set);
             }
 
-            data.addEntry(new Entry(set.getEntryCount(), (float) accel), 0);
-            String var1 = Integer.toString(set.getEntryCount());
+            int var1 = set.getEntryCount();
             String var2 = Double.toString(accel);
-            String out = "("+var1+","+var2+")";
+            String out = "("+Integer.toString(var1)+","+var2+")";
             data1 = data1+"\n"+out;
+
+            data.addEntry(new Entry(var1, (float) accel), 0);
             //System.out.println(out);
 
 
@@ -260,7 +237,9 @@ public class InfoFragment extends Fragment {
             // move to the latest entry
             chart.moveViewToX(data.getEntryCount());
 
+            return var1;
         }
+        return 0;
     }
 
     private LineDataSet createSet() {
@@ -277,25 +256,6 @@ public class InfoFragment extends Fragment {
         return set;
     }
 
-
-    private final SensorEventListener gyroListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            double x = ((double)event.values[0])*1000.0;
-            x = (((int)x)/1000.0);
-            double y = ((double)event.values[1])*1000.0;
-            y = (((int)y)/1000.0);
-            double z = ((double)event.values[2])*1000.0;
-            z = (((int)z)/1000.0);
-            //Log.i("gyroscope values", "X : " + x + " rad/s" + "Y : " + y + " rad/s" + "Z : " + z + " rad/s");
-            gyrotextX.setText("X : " + x + " rad/s");
-            gyrotextY.setText("Y : " + y + " rad/s");
-            gyrotextZ.setText("Z : " + z + " rad/s");
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-    };
 
     private final SensorEventListener accelListener = new SensorEventListener() {
         @Override
@@ -315,21 +275,25 @@ public class InfoFragment extends Fragment {
             //Log.i("rootSquare", Double.toString(rootSquare));
             double rootround = rootSquare*1000.0;
             rootround = (((int)rootround)/1000.0);
-            rootview.setText("Root: "+ rootround +"m/s");
-            if(rootround>bigdata1){
-                bigdata1 = rootround;
-                bigdata.setText("Min: "+ rootround +"m/s");
-            }
-            if(rootround<smalldata1){
-                smalldata1 = rootround;
-                smalldata.setText("Min: "+ rootround +"m/s");
-            }
+            rootview.setText("Root: "+ rootround +" g");
             if(plotData){
                 //Log.i("", "XYZ = " + rootround);
-                addEntry((float)rootround);
+                int timeInt = addEntry((float)rootround);
                 plotData = false;
-            }
+                if(rootround>max){
+                    max = rootround;
+                    bigdata.setText("Max: "+ rootround +" g");
+                    maxTime = timeInt;
+                }
+                if(rootround<min){
+                    min = rootround;
+                    smalldata.setText("Min: "+ rootround +" g");
+                    maxTime = timeInt;
+                }
+                timediff = maxTime-minTime;
+                timediffview.setText(Integer.toString(timediff));
 
+            }
             if (rootSquare < 0.1) { //person free falling
                 //System.out.println("in freefall");
                 freeFall = true;
@@ -359,8 +323,8 @@ public class InfoFragment extends Fragment {
         }
         else {
             chart.clearValues();
-            bigdata1 = 0;
-            smalldata1 = 1000;
+            max = -1;
+            min = 1000;
         }
     }
 
