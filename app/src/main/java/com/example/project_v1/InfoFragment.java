@@ -190,7 +190,7 @@ public class InfoFragment extends Fragment {
 
     }
 
-    @Override
+    /*@Override
     public void onPause() {
         super.onPause();
 
@@ -198,7 +198,7 @@ public class InfoFragment extends Fragment {
             thread.interrupt();
         }
 
-    }
+    }*/
 
 
     @Override

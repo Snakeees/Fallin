@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 content.append(line);
                 content.append(System.lineSeparator());
             }
-            System.out.println("content: " + content.toString());
+            System.out.println("content: " + content);
 
 
             br.close();
