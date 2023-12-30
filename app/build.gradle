@@ -6,7 +6,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.project_v1"
+        applicationId "com.fallin.fallin"
         minSdk 26
         targetSdk 33
         versionCode 1
@@ -27,7 +27,7 @@ android {
         dataBinding = true
         viewBinding = true
     }
-    namespace 'com.example.project_v1'
+    namespace 'com.fallin.fallin'
 }
 
 dependencies {

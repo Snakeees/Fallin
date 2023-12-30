@@ -31,17 +31,17 @@
         tools:targetApi="31">
 
         <receiver
-            android:name=".BootReceiver"
+            android:name="com.fallin.fallin.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.project_v1.FALL_DETECTED" />
+                <action android:name="com.fallin.fallin.FALL_DETECTED" />
             </intent-filter>
         </receiver>
 
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.fallin.fallin.MainActivity"
             android:exported="true"
             android:launchMode="singleInstance">
         <intent-filter>
@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".BootAccessibilityService"
+        <service android:name="com.fallin.fallin.BootAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">
             <intent-filter>

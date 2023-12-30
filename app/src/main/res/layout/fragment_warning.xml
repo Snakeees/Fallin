@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WarningFragment"
+    tools:context="com.fallin.fallin.WarningFragment"
     tools:ignore="HardcodedText">
 
     <TextView
