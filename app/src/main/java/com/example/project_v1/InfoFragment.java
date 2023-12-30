@@ -270,19 +270,19 @@ public class InfoFragment extends Fragment {
                     min = rootround;
                     smalldata.setText("Min: "+ rootround +" g");
                 }
-                if (0.1 < rootSquare && rootSquare < 0.5) {
+                if (0.15 < rootSquare && rootSquare < 0.6) {
                     //System.out.println("in freefall");
                     freeFall = true;
                     freefall.setText("In freefall");
                     maxTime = timeInt;
                 }
 
-                if (freeFall && rootSquare < 0.1) {
+                if (freeFall && rootSquare < 0.15) {
                     freeFall = false;
                     freefall.setText("FF");
                 }
 
-                if (freeFall && rootSquare > 6 && !fallDetected) {
+                if (freeFall && rootSquare > 8 && !fallDetected) {//2.82
                     System.out.println("hit the ground");
                     freeFall = false;
                     fallDetected = true;

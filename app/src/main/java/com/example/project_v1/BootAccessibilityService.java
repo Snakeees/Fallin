@@ -88,17 +88,17 @@ public class BootAccessibilityService extends AccessibilityService implements Se
             addValue(rootSquare);
             //Log.i(TAG, String.valueOf(rootSquare));
 
-            if (0.05 < rootSquare && rootSquare < 0.5) {
+            if (0.15 < rootSquare && rootSquare < 0.6) {
                 Log.i(TAG, "Person in freefall");
                 Log.i(TAG, String.valueOf(rootSquare));
                 freeFall = true;
             }
 
-            if (freeFall && rootSquare < 0.05) {
+            if (freeFall && rootSquare < 0.15) {
                 freeFall = false;
             }
 
-            if (freeFall && rootSquare > 6 && !fallDetected) {//2.82
+            if (freeFall && rootSquare > 8 && !fallDetected) {//2.82
                 Log.i(TAG, "Person hit the ground");
                 Log.i(TAG, String.valueOf(rootSquare));
                 freeFall = false;
