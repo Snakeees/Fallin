@@ -135,6 +135,7 @@ public class HomeFragment extends Fragment {
                     try {
                         SmsManager smsManager = SmsManager.getDefault();
                         smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE + "\n" + url, null, null);
+                        Toast.makeText(getActivity(), "Sent Message", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(getActivity(), "Error sending message", Toast.LENGTH_SHORT).show();
                     }
@@ -152,6 +153,7 @@ public class HomeFragment extends Fragment {
                     try {
                         SmsManager smsManager = SmsManager.getDefault();
                         smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE + "\n" + url, null, null);
+                        Toast.makeText(getActivity(), "Sent Message", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(getActivity(), "Error sending message", Toast.LENGTH_SHORT).show();
                     }

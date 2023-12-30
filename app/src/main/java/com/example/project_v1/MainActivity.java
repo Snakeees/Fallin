@@ -1,5 +1,6 @@
 package com.example.project_v1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -53,28 +54,7 @@ public class MainActivity extends AppCompatActivity {
             replaceFragment(new HomeFragment());
         }
         setupBottomNavigationView();
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 100);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 101);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 102);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 103);
-        }
-        if (!Settings.canDrawOverlays(this)) {
-            Intent overlayIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-            startActivity(overlayIntent);
-        }
-        String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
-        if (!isAccessibilityServiceEnabled(this, serviceString)) {
-            Intent AccessibilityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivity(AccessibilityIntent);
-        }
-
+        checkPermissions();
     }
 
 
@@ -156,5 +136,79 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 100);
+        } else {
+            checkSendSMSPermission();
+        }
+    }
+
+    private void checkSendSMSPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 101);
+        } else {
+            checkCoarseLocationPermission();
+        }
+    }
+
+    private void checkCoarseLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 102);
+        } else {
+            checkFineLocationPermission();
+        }
+    }
+
+    private void checkFineLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 103);
+        } else {
+            checkOverlayAndAccessibilitySettings();
+        }
+    }
+
+    private void checkOverlayAndAccessibilitySettings() {
+        String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
+        if (!Settings.canDrawOverlays(this)) {
+            Intent overlayIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            overlayIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            overlayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(overlayIntent);
+        }
+        if (!isAccessibilityServiceEnabled(this, serviceString)) {
+            Intent AccessibilityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            AccessibilityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            AccessibilityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(AccessibilityIntent);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 100:
+                checkSendSMSPermission();
+                break;
+            case 101:
+                checkCoarseLocationPermission();
+                break;
+            case 102:
+                checkFineLocationPermission();
+                break;
+            case 103:
+                checkOverlayAndAccessibilitySettings();
+                break;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkPermissions();
+    }
+
 
 }

@@ -288,7 +288,7 @@ public class InfoFragment extends Fragment {
                     fallDetected = true;
                     falldetected.setText("Fall detected");
                     minTime = timeInt;
-                    timediff = maxTime-minTime;
+                    timediff = minTime-maxTime;
                     timediffview.setText(timediff+" U");
                 }
                 if (fallDetected) {
