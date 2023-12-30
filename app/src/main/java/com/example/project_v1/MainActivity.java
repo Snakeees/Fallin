@@ -8,31 +8,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.example.project_v1.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
     private ActivityMainBinding binding;
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private static final int CHECK_PERMISSION_DELAY_MS = 5000;  // 5 seconds
-
-
-
+    public BottomNavigationView nav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +33,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
 
+        nav = findViewById(R.id.bottomNavigationView);
 
         Intent intent = getIntent();
         int frag = intent.getIntExtra("frag", 0);
@@ -55,49 +53,30 @@ public class MainActivity extends AppCompatActivity {
             replaceFragment(new HomeFragment());
         }
         setupBottomNavigationView();
-        checkAndRequestPermissions();
-    }
-
-    private void checkAndRequestPermissions() {
-        if (!allPermissionsGranted()) {
-            // If Call permission not granted
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 100);
-            }
-
-            // If SMS permission not granted
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 101);
-            }
-
-            // If overlay permission not granted
-            if (!Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
-            }
-
-            // If accessibility service not enabled
-            String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
-            if (!isAccessibilityServiceEnabled(this, serviceString)) {
-                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                startActivity(intent);
-            }
-
-            handler.postDelayed(this::checkAndRequestPermissions, CHECK_PERMISSION_DELAY_MS);
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 100);
         }
-    }
-
-    private boolean allPermissionsGranted() {
-        boolean callPermissionGranted = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
-        boolean smsPermissionGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
-        boolean overlayPermissionGranted = Settings.canDrawOverlays(this);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 101);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 102);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 103);
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            Intent overlayIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+            startActivity(overlayIntent);
+        }
         String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
-        boolean accessibilityEnabled = isAccessibilityServiceEnabled(this, serviceString);
+        if (!isAccessibilityServiceEnabled(this, serviceString)) {
+            Intent AccessibilityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(AccessibilityIntent);
+        }
 
-        return callPermissionGranted && smsPermissionGranted && overlayPermissionGranted && accessibilityEnabled;
     }
 
-// ... Other code, including your isAccessibilityServiceEnabled() method ...
 
 
     private void setupBottomNavigationView() {
@@ -128,6 +107,54 @@ public class MainActivity extends AppCompatActivity {
         }
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.details_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.details) {
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+            if (!(currentFragment instanceof DetailsFragment)) {
+                replaceFragment(new DetailsFragment());
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    public void hide() {
+        if (nav.getVisibility() == View.VISIBLE) {
+            nav.setVisibility(View.GONE);
+        }
+    }
+
+    public void unhide() {
+        if (nav.getVisibility() != View.VISIBLE) {
+            nav.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void setSelected() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+        if (currentFragment instanceof HomeFragment) {
+            if (nav.getSelectedItemId() != R.id.home_button) {
+                nav.setSelectedItemId(R.id.home_button);
+            }
+        } else if (currentFragment instanceof InfoFragment) {
+            if (nav.getSelectedItemId() != R.id.info_button) {
+                nav.setSelectedItemId(R.id.info_button);
+            }
+        } else {
+            if (nav.getSelectedItemId() != R.id.none_button) {
+                nav.setSelectedItemId(R.id.none_button);
+            }
+        }
     }
 
 }

@@ -8,7 +8,6 @@
     tools:ignore="HardcodedText">
 
 
-
     <TextView
         android:id="@+id/accelerometer_header"
         android:layout_width="wrap_content"
@@ -16,6 +15,7 @@
         android:layout_marginTop="10sp"
         android:text="Accelerometer details"
         android:textSize="30sp"
+        android:fontFamily="@font/segoeuil"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Your device does not have accelerometer sensor."
-        android:textColor="#D32F2F"
+        android:textColor="@color/red"
+        android:fontFamily="@font/segoeui"
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -38,8 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10sp"
         android:layout_marginTop="15sp"
-        android:text="AX"
+        android:text="X"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accelerometer_header" />
 
@@ -48,8 +50,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15sp"
-        android:text="AY"
+        android:text="Y"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accelerometer_header" />
@@ -60,8 +63,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15sp"
         android:layout_marginEnd="10sp"
-        android:text="AY"
+        android:text="Z"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accelerometer_header" />
 
@@ -69,9 +73,10 @@
         android:id="@+id/other_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120sp"
+        android:layout_marginTop="70dp"
         android:text="Other details"
         android:textSize="30sp"
+        android:fontFamily="@font/segoeuil"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accelerometer_header"/>
@@ -84,6 +89,7 @@
         android:layout_marginTop="15sp"
         android:text="Root High"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/other_header" />
 
@@ -94,6 +100,7 @@
         android:layout_marginTop="50sp"
         android:text="Root"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/other_header" />
@@ -105,6 +112,7 @@
         android:layout_marginTop="15sp"
         android:text="Time Diff"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/other_header" />
@@ -117,6 +125,7 @@
         android:layout_marginEnd="10sp"
         android:text="Root Low"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/other_header" />
 
@@ -128,6 +137,7 @@
         android:layout_marginTop="15sp"
         android:text="FD"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bigData" />
 
@@ -139,6 +149,7 @@
         android:layout_marginEnd="10sp"
         android:text="FF"
         android:textSize="18sp"
+        android:fontFamily="@font/segoeui"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/smallData" />
 
@@ -151,24 +162,27 @@
         app:layout_constraintTop_toBottomOf="@id/root" />
 
     <Button
-        android:id="@+id/plot"
+        android:id="@+id/reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20sp"
         android:layout_marginTop="10sp"
-        android:text="plot"
+        android:textColor="@color/blue_main"
+        android:backgroundTint="#EEF0F8"
+        android:text="Reset"
+        android:textAllCaps="false"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chart" />
-
-    <Button
-        android:id="@+id/reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
-        android:layout_marginEnd="20sp"
-        android:text="reset"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chart"/>
 
+    <Button
+        android:id="@+id/plot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20sp"
+        android:layout_marginTop="10sp"
+        android:text="Pause"
+        android:textAllCaps="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chart" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

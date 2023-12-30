@@ -9,4 +9,10 @@
         android:id="@+id/info_button"
         android:icon="@drawable/info_button"
         android:title="Info" />
+    <item
+        android:id="@+id/none_button"
+        android:enabled="false"
+        android:visible="false"
+        android:title="" />
+
 </menu>

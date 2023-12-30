@@ -1,8 +1,16 @@
 package com.example.project_v1;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
 import android.content.Intent;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -16,28 +24,38 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.*;
-
+import java.util.*;
 
 
 public class HomeFragment extends Fragment {
 
     private EditText contact1, contact2, contact3;
-    private Button saveInfo;
-    private ImageButton call1, call2, call3;
+    private Button saveInfo, cancle;
+    private ImageButton call, msg1, msg2;
+    private String url = "";
+    private final String TAG = "HomeFragment";
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            mainActivity.unhide();
+            mainActivity.setSelected();
+        }
+        requestLocation();
 
         contact1 = view.findViewById(R.id.contact1id);
         contact2 = view.findViewById(R.id.contact2id);
-        contact3 = view.findViewById(R.id.emergencyid);
-        saveInfo = view.findViewById(R.id.saveinfoid);
-        call1 = view.findViewById(R.id.call1id);
-        call2 = view.findViewById(R.id.call2id);
-        call3 = view.findViewById(R.id.calleid);
+        contact3 = view.findViewById(R.id.contact3id);
+        saveInfo = view.findViewById(R.id.save_btn);
+        cancle = view.findViewById(R.id.cancle_btn);
+        call = view.findViewById(R.id.call);
+        msg1 = view.findViewById(R.id.msg1);
+        msg2 = view.findViewById(R.id.msg2);
 
         try {
             String[] numbers = readFile().split(";");
@@ -46,6 +64,15 @@ public class HomeFragment extends Fragment {
             contact3.setText(numbers[2]);
         } catch (ArrayIndexOutOfBoundsException e) {
         }
+
+        cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contact1.setText("");
+                contact2.setText("");
+                contact3.setText("");
+            }
+        });
 
         saveInfo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,13 +98,14 @@ public class HomeFragment extends Fragment {
                     writer.close();
                     String output = readFile().replace(";", ", ");
                     Toast.makeText(getActivity(), output, Toast.LENGTH_LONG).show();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
 
                 Toast.makeText(getActivity(), "Contacts have been saved.", Toast.LENGTH_SHORT).show();
             }
         });
 
-        call1.setOnClickListener(new View.OnClickListener() {
+        call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String contact = contact1.getText().toString();
@@ -85,26 +113,35 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getActivity(), "Contact is Empty", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    Intent phone_intent = new Intent(Intent.ACTION_CALL);
-                    phone_intent.setData(Uri.parse("tel:" + contact));
-                    startActivity(phone_intent);
+                    try {
+                        Intent phone_intent = new Intent(Intent.ACTION_CALL);
+                        phone_intent.setData(Uri.parse("tel:" + contact));
+                        startActivity(phone_intent);
+                    } catch (Exception e) {
+                        Toast.makeText(getActivity(), "Error making call", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
         });
-        call2.setOnClickListener(new View.OnClickListener() {
+        msg1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String contact = contact2.getText().toString();
                 if (contact.isEmpty()) {
-                    Toast.makeText(getActivity(), "Contact is Empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Contact is empty", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE, null, null);
+                    try {
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE + "\n" + url, null, null);
+                    } catch (Exception e) {
+                        Toast.makeText(getActivity(), "Error sending message", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
-        call3.setOnClickListener(new View.OnClickListener() {
+        msg2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String contact = contact3.getText().toString();
@@ -112,8 +149,12 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getActivity(), "Contact is Empty", Toast.LENGTH_SHORT).show();
 
                 } else {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE, null, null);
+                    try {
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage(contact, null, WarningFragment.FALL_DETECTED_MESSAGE + "\n" + url, null, null);
+                    } catch (Exception e) {
+                        Toast.makeText(getActivity(), "Error sending message", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -144,4 +185,29 @@ public class HomeFragment extends Fragment {
         }
         return (firstLine != null) ? firstLine : ";;";
     }
+
+    private void requestLocation() {
+        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    locationManager.getCurrentLocation(
+                            provider,
+                            null,
+                            ContextCompat.getMainExecutor(getContext()),
+                            location -> {
+                                if (location != null) {
+                                    double longitude = location.getLongitude();
+                                    double latitude = location.getLatitude();
+                                    url = "http://maps.google.com/?q=" + latitude + "," + longitude;
+                                    Log.i(TAG, url);
+                                }
+                            }
+                    );
+                }
+            }
+        }
+    }
+
 }

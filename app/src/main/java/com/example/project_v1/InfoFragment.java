@@ -50,6 +50,13 @@ public class InfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
+
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            mainActivity.unhide();
+            mainActivity.setSelected();
+        }
+
         accelTextX = view.findViewById(R.id.acc_textX);
         accelTextY =  view.findViewById(R.id.acc_textY);
         accelTextZ =  view.findViewById(R.id.acc_textZ);
@@ -68,36 +75,19 @@ public class InfoFragment extends Fragment {
         Button reset =  view.findViewById(R.id.reset);
 
 
-
-
         chart = view.findViewById(R.id.chart);
-        // enable description text
         chart.getDescription().setEnabled(true);
-
-        // enable touch gestures
         chart.setTouchEnabled(true);
-
-        // enable scaling and dragging
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
         chart.setDrawGridBackground(false);
-
-        // if disabled, scaling can be done on x- and y-axis separately
         chart.setPinchZoom(true);
-
-        // set an alternative background color
         chart.setBackgroundColor(Color.WHITE);
 
         LineData data = new LineData();
         data.setValueTextColor(Color.BLACK);
-
-        // add empty data
         chart.setData(data);
-
-        // get the legend (only possible after setting data)
         Legend l = chart.getLegend();
-
-        // modify the legend ...
         l.setForm(Legend.LegendForm.LINE);
         l.setTextColor(Color.BLACK);
 
@@ -113,7 +103,7 @@ public class InfoFragment extends Fragment {
         //leftAxis.enableGridDashedLine(5f, 5f, 1f);
         leftAxis.setTextColor(Color.BLACK);
         leftAxis.setDrawGridLines(false);
-        leftAxis.setAxisMaximum(3.5f);
+        leftAxis.setAxisMaximum(8f);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawTopYLabelEntry(false);
         leftAxis.setLabelCount(7);
@@ -224,17 +214,9 @@ public class InfoFragment extends Fragment {
             data.addEntry(new Entry(var1, (float) accel), 0);
             //System.out.println(out);
 
-
-
             data.notifyDataChanged();
-
-            // let the chart know it's data has changed
             chart.notifyDataSetChanged();
-
-            // limit the number of visible entries
             chart.setVisibleXRangeMaximum(300);
-
-            // move to the latest entry
             chart.moveViewToX(data.getEntryCount());
 
             return var1;
@@ -247,7 +229,7 @@ public class InfoFragment extends Fragment {
         LineDataSet set = new LineDataSet(null, "Resultant Acceleration(g)");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setLineWidth(3f);
-        set.setColor(Color.CYAN);
+        set.setColor(Color.rgb(22,162,237));
         set.setHighlightEnabled(false);
         set.setDrawValues(false);
         set.setDrawCircles(false);
@@ -283,33 +265,37 @@ public class InfoFragment extends Fragment {
                 if(rootround>max){
                     max = rootround;
                     bigdata.setText("Max: "+ rootround +" g");
-                    maxTime = timeInt;
                 }
                 if(rootround<min){
                     min = rootround;
                     smalldata.setText("Min: "+ rootround +" g");
+                }
+                if (0.1 < rootSquare && rootSquare < 0.5) {
+                    //System.out.println("in freefall");
+                    freeFall = true;
+                    freefall.setText("In freefall");
                     maxTime = timeInt;
                 }
-                timediff = maxTime-minTime;
-                timediffview.setText(Integer.toString(timediff));
 
-            }
-            if (rootSquare < 0.1) { //person free falling
-                //System.out.println("in freefall");
-                freeFall = true;
-                freefall.setText("In freefall");
-            }
-            if (freeFall && rootSquare > 2.82 && !fallDetected) { //person hit the ground
-                System.out.println("hit the ground");
-                freeFall = false;
-                fallDetected = true;
-                falldetected.setText("Fall detected");
-            }
-            if (fallDetected) {
-                fallDetected = false;
-                //Log.i("fall dectected", "done");
-            }
+                if (freeFall && rootSquare < 0.1) {
+                    freeFall = false;
+                    freefall.setText("FF");
+                }
 
+                if (freeFall && rootSquare > 6 && !fallDetected) {
+                    System.out.println("hit the ground");
+                    freeFall = false;
+                    fallDetected = true;
+                    falldetected.setText("Fall detected");
+                    minTime = timeInt;
+                    timediff = maxTime-minTime;
+                    timediffview.setText(timediff+" U");
+                }
+                if (fallDetected) {
+                    fallDetected = false;
+                    //Log.i("fall dectected", "done");
+                }
+            }
         }
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
@@ -317,14 +303,29 @@ public class InfoFragment extends Fragment {
 
 
     public void reset(){
-        if (!freefall.getText().toString().equals("FF")){
+        if (!freefall.getText().toString().equals("FF") || !falldetected.getText().toString().equals("FD")){
             freefall.setText("FF");
             falldetected.setText("FD");
+            max = -1;
+            min = 1000;
+            minTime = 0;
+            maxTime = 0;
+            timediff = maxTime-minTime;
+            timediffview.setText(timediff+" U");
+
         }
         else {
             chart.clearValues();
-            max = -1;
+            freefall.setText("FF");
+            falldetected.setText("FD");
             min = 1000;
+            max = -1;
+            minTime = 0;
+            maxTime = 0;
+            timediff = maxTime-minTime;
+            timediffview.setText(timediff+" U");
+            bigdata.setText("Root High");
+            smalldata.setText("Root Low");
         }
     }
 

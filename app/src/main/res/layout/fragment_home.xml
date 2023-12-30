@@ -1,84 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment"
-    tools:ignore="HardcodedText">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
+
+    <ImageButton
+        android:layout_width="5dp"
+        android:layout_height="42dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/line"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="15dp"
+        android:fontFamily="@font/segoeuil"
+        android:text="Enter Contacts"
+        android:textColor="#263E68"
+        android:textSize="30dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/contact1id"
-        android:layout_width="300dp"
-        android:layout_height="45dp"
-        android:layout_margin="10dp"
-        android:hint="Enter Call Contact"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/edit_fill"
+        android:hint="Call Contact"
+        android:paddingHorizontal="15dp"
+        android:textColorHint="#575151"
+        android:fontFamily="@font/segoeui"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        tools:layout_editor_absoluteX="16dp" />
 
     <ImageButton
-        android:id="@+id/call1id"
-        android:layout_width="50dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/call_button"
-        android:background="@color/emerald_green"
+        android:id="@+id/call"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/phone"
+        app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginVertical="52dp"
+        android:layout_marginHorizontal="25dp"/>
+
 
     <EditText
         android:id="@+id/contact2id"
-        android:layout_width="300dp"
-        android:layout_height="45dp"
-        android:layout_margin="10dp"
-        android:layout_marginTop="232dp"
-        android:hint="Enter Message Contact 1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contact1id"/>
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="30dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/edit_fill"
+        android:hint="First Message Contact"
+        android:paddingHorizontal="15dp"
+        android:textColorHint="#575151"
+        android:fontFamily="@font/segoeui"
+        app:layout_constraintTop_toBottomOf="@+id/contact1id"/>
 
     <ImageButton
-        android:id="@+id/call2id"
-        android:layout_width="50dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/message_button"
-        android:background="@color/emerald_green"
+        android:id="@+id/msg1"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/chat"
+        app:layout_constraintTop_toBottomOf="@id/contact1id"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/call1id" />
-
+        android:layout_marginVertical="42dp"
+        android:layout_marginHorizontal="25dp"/>
 
     <EditText
-        android:id="@+id/emergencyid"
-        android:layout_width="300dp"
-        android:layout_height="45dp"
-        android:layout_margin="10dp"
-        android:hint="Enter Message Contact 2"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contact2id"/>
+        android:id="@+id/contact3id"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="30dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/edit_fill"
+        android:hint="Second Message Contact"
+        android:paddingHorizontal="15dp"
+        android:textColorHint="#575151"
+        android:fontFamily="@font/segoeui"
+        app:layout_constraintTop_toBottomOf="@+id/contact2id"/>
 
     <ImageButton
-        android:id="@+id/calleid"
-        android:layout_width="50dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/message_button"
-        android:background="@color/emerald_green"
+        android:drawablePadding="20dp"
+        android:id="@+id/msg2"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/chat"
+        app:layout_constraintTop_toBottomOf="@id/contact2id"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/call2id" />
-
+        android:layout_marginVertical="42dp"
+        android:layout_marginHorizontal="25dp"/>
 
     <Button
-        android:id="@+id/saveinfoid"
-        android:layout_width="match_parent"
+        android:id="@+id/cancle_btn"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Save Info"
+        android:text="Clear"
+        android:textColor="@color/blue_main"
+        android:backgroundTint="#EEF0F8"
+        android:layout_marginVertical="40dp"
+        android:layout_marginHorizontal="30dp"
         android:textAllCaps="false"
-        app:layout_constraintTop_toBottomOf="@id/emergencyid"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contact3id" />
 
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_marginVertical="40dp"
+        android:layout_marginHorizontal="30dp"
+        android:textAllCaps="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contact3id" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

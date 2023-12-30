@@ -11,6 +11,8 @@ import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
+import java.util.*;
+
 public class BootAccessibilityService extends AccessibilityService implements SensorEventListener {
 
     private static final String TAG = "BootAccessibilityService";
@@ -22,6 +24,46 @@ public class BootAccessibilityService extends AccessibilityService implements Se
 
     private Thread thread;
 
+    private static final int MAX_SIZE = 200;
+    private ArrayList<Float> values = new ArrayList<>();
+
+    public void addValue(float x) {
+        values.add(x);
+        if (values.size() > MAX_SIZE) {
+            values.remove(0);
+        }
+    }
+
+    public Float[] getValues() {
+        return values.toArray(new Float[0]);
+    }
+
+    private void feedMultiple() {
+        if (thread != null){
+            thread.interrupt();
+        }
+
+        thread = new Thread(() -> {
+            int x = 0;
+            while (true) {
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (freeFall){
+                    x+=1;
+                    if (x>=50){
+                        freeFall = false;
+                        x = 0;
+                    }
+                } else {x = 0;}
+            }
+        });
+        thread.start();
+
+    }
+
 
     @Override
     protected void onServiceConnected() {
@@ -30,30 +72,33 @@ public class BootAccessibilityService extends AccessibilityService implements Se
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        feedMultiple();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            double x = ((double)event.values[0])*1000.0;
-            x = (((int)x)/1000.0);
-            double y = ((double)event.values[1])*1000.0;
-            y = (((int)y)/1000.0);
-            double z = ((double)event.values[2])*1000.0;
-            z = (((int)z)/1000.0);
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
 
             //Log.i(TAG, String.format("X: %.3f m/s, Y: %.3f m/s, Z: %.3f m/s", x, y, z));
 
-            double rootSquare = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)) / 9.81;
+            float rootSquare = (float) (Math.sqrt(x*x + y*y + z*z) / 9.81);
+            addValue(rootSquare);
             //Log.i(TAG, String.valueOf(rootSquare));
 
-            if (rootSquare < 0.1) {
+            if (0.05 < rootSquare && rootSquare < 0.5) {
                 Log.i(TAG, "Person in freefall");
                 Log.i(TAG, String.valueOf(rootSquare));
                 freeFall = true;
             }
 
-            if (freeFall && rootSquare > 2.82 && !fallDetected) {
+            if (freeFall && rootSquare < 0.05) {
+                freeFall = false;
+            }
+
+            if (freeFall && rootSquare > 6 && !fallDetected) {//2.82
                 Log.i(TAG, "Person hit the ground");
                 Log.i(TAG, String.valueOf(rootSquare));
                 freeFall = false;
