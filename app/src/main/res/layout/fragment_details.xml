@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white">
+    android:background="@color/white"
+    tools:ignore="HardcodedText,TextSizeCheck">
 
     <TextView
         android:id="@+id/t"
@@ -14,7 +15,7 @@
         android:fontFamily="@font/segoeuil"
         android:text="For the app to function you need to:"
         android:textColor="#263E68"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,11 +25,11 @@
         android:id="@+id/p1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="15dp"
         android:fontFamily="@font/segoeuil"
+        android:paddingHorizontal="15dp"
         android:text="• Give call permission"
         android:textColor="#263E68"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/t"/>
 
@@ -36,11 +37,11 @@
         android:id="@+id/p2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="15dp"
         android:fontFamily="@font/segoeuil"
+        android:paddingHorizontal="15dp"
         android:text="• Give message permission"
         android:textColor="#263E68"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/p1"/>
 
@@ -52,7 +53,7 @@
         android:fontFamily="@font/segoeuil"
         android:text="• Give (precise) location permission"
         android:textColor="#263E68"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/p2"/>
 
@@ -64,7 +65,7 @@
         android:fontFamily="@font/segoeuil"
         android:text="• Turn on Overlay/DrawOver"
         android:textColor="#263E68"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/p3"/>
 
@@ -74,9 +75,9 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="15dp"
         android:fontFamily="@font/segoeuil"
-        android:text="• Turn on the Accessibility Service"
+        android:text=""
         android:textColor="#263E68"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/p4"/>
 

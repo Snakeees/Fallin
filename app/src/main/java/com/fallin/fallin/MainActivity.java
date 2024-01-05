@@ -1,15 +1,8 @@
 package com.fallin.fallin;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.Manifest;
-import android.content.Context;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -21,12 +14,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.fallin.fallin.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     public BottomNavigationView nav;
+    public static final String NotificationChannelID = "FALLIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             replaceFragment(new HomeFragment());
         }
         setupBottomNavigationView();
+        createChannelAndStartService();
         checkPermissions();
     }
 
@@ -61,22 +63,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupBottomNavigationView() {
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.home_button:
-                    replaceFragment(new HomeFragment());
-                    break;
-                case R.id.info_button:
-                    replaceFragment(new InfoFragment());
-                    break;
+            int id = item.getItemId();
+            if (id == R.id.home_button) {
+                replaceFragment(new HomeFragment());
+            } else if (id == R.id.info_button) {
+                replaceFragment(new InfoFragment());
             }
             return true;
         });
     }
 
-    public boolean isAccessibilityServiceEnabled(Context context, String service) {
-        String enabledServices = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-        return enabledServices != null && enabledServices.contains(service);
-    }
 
 
     private void replaceFragment(Fragment fragment) {
@@ -165,23 +161,16 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 103);
         } else {
-            checkOverlayAndAccessibilitySettings();
+            checkOverlay();
         }
     }
 
-    private void checkOverlayAndAccessibilitySettings() {
-        String serviceString = getPackageName() + "/" + BootAccessibilityService.class.getCanonicalName();
+    private void checkOverlay() {
         if (!Settings.canDrawOverlays(this)) {
             Intent overlayIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
             overlayIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             overlayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(overlayIntent);
-        }
-        if (!isAccessibilityServiceEnabled(this, serviceString)) {
-            Intent AccessibilityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            AccessibilityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            AccessibilityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(AccessibilityIntent);
         }
     }
 
@@ -199,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 checkFineLocationPermission();
                 break;
             case 103:
-                checkOverlayAndAccessibilitySettings();
+                checkOverlay();
                 break;
         }
     }
@@ -210,5 +199,15 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
-
+    private void createChannelAndStartService() {
+        NotificationChannel serviceChannel = new NotificationChannel(
+                NotificationChannelID,
+                "Foreground Service Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(serviceChannel);
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
 }
