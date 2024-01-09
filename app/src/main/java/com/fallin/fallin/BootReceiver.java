@@ -36,7 +36,7 @@ public class BootReceiver extends BroadcastReceiver {
     private void createNotificationChannel(Context context) {
         NotificationChannel serviceChannel = new NotificationChannel(
                 MainActivity.NotificationChannelID,
-                "Foreground Service Channel",
+                "Fallin Foreground Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT
         );
         NotificationManager manager = context.getSystemService(NotificationManager.class);

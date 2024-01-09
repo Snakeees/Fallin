@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     private void createChannelAndStartService() {
         NotificationChannel serviceChannel = new NotificationChannel(
                 NotificationChannelID,
-                "Foreground Service Channel",
+                "Fallin Foreground Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT
         );
         NotificationManager manager = getSystemService(NotificationManager.class);

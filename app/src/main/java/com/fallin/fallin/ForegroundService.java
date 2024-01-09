@@ -66,7 +66,11 @@ public class ForegroundService extends Service implements SensorEventListener{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(FOREGROUND_ID, getNotification());
-        return START_STICKY;
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        feedMultiple();
+        return START_REDELIVER_INTENT;
     }
 
     @Override

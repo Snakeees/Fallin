@@ -33,6 +33,7 @@
         <service
             android:name=".ForegroundService"
             android:enabled="true"
+            android:foregroundServiceType="dataSync"
             android:exported="true"/>
 
         <receiver
